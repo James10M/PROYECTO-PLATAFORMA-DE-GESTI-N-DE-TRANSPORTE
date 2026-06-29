@@ -1,0 +1,116 @@
+CREATE DATABASE db_gestion_transporte;
+GO
+	
+USE db_gestion_transporte;
+GO
+
+CREATE TABLE Rol(
+    	id_rol INT IDENTITY(1,1) PRIMARY KEY,
+    	nombre VARCHAR(30) NOT NULL UNIQUE
+);
+GO
+
+
+CREATE TABLE Usuario(
+    	id_usuario INT IDENTITY(1,1) PRIMARY KEY,
+    	nombres VARCHAR(100) NOT NULL,
+    	apellidos VARCHAR(100) NOT NULL,
+    	correo VARCHAR(100) NOT NULL UNIQUE,
+    	contraseña VARCHAR(255) NOT NULL,
+    	estado VARCHAR(20) NOT NULL,
+    	id_rol INT NOT NULL,
+    	FOREIGN KEY (id_rol) REFERENCES Rol(id_rol)
+);
+GO
+
+
+CREATE TABLE Ruta(
+    	id_ruta INT IDENTITY(1,1) PRIMARY KEY,
+    	nombre VARCHAR(100) NOT NULL,
+    	origen VARCHAR(150) NOT NULL,
+    	destino VARCHAR(150) NOT NULL,
+    	distancia_km DECIMAL(6,2) NOT NULL
+);
+GO
+
+
+CREATE TABLE Paradero(
+    	id_paradero INT IDENTITY(1,1) PRIMARY KEY,
+    	nombre VARCHAR(100) NOT NULL,
+    	direccion VARCHAR(150) NOT NULL,
+    	orden_ruta INT NOT NULL,
+    	id_ruta INT NOT NULL,
+    	FOREIGN KEY (id_ruta) REFERENCES Ruta(id_ruta)
+);
+GO
+
+
+CREATE TABLE Unidad(
+    	id_unidad INT IDENTITY(1,1) PRIMARY KEY,
+    	placa VARCHAR(10) NOT NULL UNIQUE,
+    	capacidad INT NOT NULL,
+    	estado VARCHAR(30) NOT NULL,
+    	gps_activo BIT NOT NULL
+);
+GO
+
+
+CREATE TABLE Asignacion_Unidad(
+    	id_asignacion INT IDENTITY(1,1) PRIMARY KEY,
+    	id_ruta INT NOT NULL,
+    	id_unidad INT NOT NULL,
+    	turno VARCHAR(20) NOT NULL,
+    	disponibilidad BIT NOT NULL,
+    	FOREIGN KEY (id_ruta) REFERENCES Ruta(id_ruta),
+    	FOREIGN KEY (id_unidad) REFERENCES Unidad(id_unidad)
+);
+GO
+
+
+CREATE TABLE Horario(
+    	id_horario INT IDENTITY(1,1) PRIMARY KEY,
+    	hora_salida TIME NOT NULL,
+    	hora_llegada TIME NOT NULL,
+    	id_ruta INT NOT NULL,
+    	id_unidad INT NOT NULL,
+    	FOREIGN KEY (id_ruta) REFERENCES Ruta(id_ruta),
+    	FOREIGN KEY (id_unidad) REFERENCES Unidad(id_unidad)
+);
+GO
+
+
+CREATE TABLE Incidencia(
+    	id_incidencia INT IDENTITY(1,1) PRIMARY KEY,
+    	descripcion VARCHAR(255) NOT NULL,
+    	tipo VARCHAR(50) NOT NULL,
+    	fecha_registro DATETIME NOT NULL,
+    	id_ruta INT NOT NULL,
+    	id_unidad INT NOT NULL,
+    	FOREIGN KEY (id_ruta) REFERENCES Ruta(id_ruta),
+    	FOREIGN KEY (id_unidad) REFERENCES Unidad(id_unidad)
+);
+GO
+
+
+CREATE TABLE Ubicacion_GPS(
+    	id_ubicacion INT IDENTITY(1,1) PRIMARY KEY,
+    	latitud DECIMAL(10,7) NOT NULL,
+    	longitud DECIMAL(10,7) NOT NULL,
+    	fecha_hora DATETIME NOT NULL,
+    	id_unidad INT NOT NULL,
+    	FOREIGN KEY (id_unidad) REFERENCES Unidad(id_unidad)
+);
+GO
+
+CREATE TABLE Notificacion(
+  id_notificacion INT IDENTITY(1,1) PRIMARY KEY,
+  id_usuario INT NOT NULL,
+  id_unidad INT NULL,
+  mensaje VARCHAR(255) NOT NULL,
+  tipo VARCHAR(30) NOT NULL,           
+  leida BIT NOT NULL DEFAULT 0,
+  fecha_hora DATETIME NOT NULL DEFAULT GETDATE(),
+  FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+  FOREIGN KEY (id_unidad) REFERENCES Unidad(id_unidad)
+);
+GO
